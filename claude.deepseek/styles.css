@@ -1,0 +1,896 @@
+/* ============================================================
+   styles.css —— 熊的日记 · 整体样式
+============================================================ */
+
+:root {
+  --bg: #f7ead8;          /* 暖奶油底色 */
+  --paper: #fdf3dd;       /* 日记纸 */
+  --paper-dark: #f3e6cb;  /* 纸背 */
+  --ink: #4a3828;         /* 正文墨色 */
+  --brown: #8a5a3b;       /* 熊棕 */
+  --dark: #5e3b26;        /* 深棕 */
+  --accent: #e8a33d;      /* 蜂蜜金 */
+  --heart: #e2738a;       /* 爱心粉 */
+  --hand: "Kaiti SC", "KaiTi", "STKaiti", "AR PL UKai CN", "SimSun", serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: rgba(232, 163, 61, 0.35); }
+
+canvas { image-rendering: pixelated; }
+
+button { font-family: inherit; }
+
+/* ---------- 屏幕切换 ---------- */
+
+.screen { display: none; }
+
+.screen.active {
+  display: block;
+  min-height: 100vh;
+  animation: screenIn 0.5s ease;
+}
+
+@keyframes screenIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ============================================================
+   屏幕 1：熊的小屋
+============================================================ */
+
+.home-title {
+  text-align: center;
+  padding: 26px 0 14px;
+}
+
+.home-title h1 {
+  font-family: var(--hand);
+  font-size: 30px;
+  letter-spacing: 10px;
+  color: var(--dark);
+  text-indent: 10px; /* 抵消字距让标题视觉居中 */
+}
+
+.home-title p {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #8a6a4a;
+  letter-spacing: 2px;
+}
+
+.scene-wrap {
+  position: relative;
+  width: min(960px, 94vw);
+  margin: 0 auto;
+}
+
+#scene-canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 10px;
+  box-shadow: 0 12px 34px rgba(94, 59, 38, 0.22);
+  cursor: default;
+}
+
+.scene-tip {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  background: rgba(74, 56, 40, 0.92);
+  color: #f7ead8;
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+
+.scene-tip span { opacity: 0.75; margin-left: 6px; font-size: 12px; }
+
+.home-progress {
+  text-align: center;
+  margin: 16px 0 30px;
+  font-size: 14px;
+  color: #8a6a4a;
+}
+
+.home-progress .hearts {
+  display: block;
+  font-size: 18px;
+  letter-spacing: 6px;
+  margin-bottom: 4px;
+}
+
+.home-progress .hearts .on { color: var(--heart); }
+
+.home-progress .hearts .off { color: #d8c4a8; }
+
+/* ============================================================
+   屏幕 2：日记本
+============================================================ */
+
+#screen-diary {
+  background: radial-gradient(ellipse at 50% 30%, #f3e3c6 0%, #ecd9bd 60%, #dfc7a4 100%);
+}
+
+.diary-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: min(920px, 94vw);
+  margin: 0 auto;
+  padding: 18px 4px 12px;
+}
+
+.diary-item-name {
+  font-family: var(--hand);
+  font-size: 20px;
+  color: var(--dark);
+}
+
+.diary-step {
+  margin-left: auto;
+  font-size: 13px;
+  color: #8a6a4a;
+}
+
+.diary-stage {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0 4px;
+}
+
+/* ----- 书本容器 ----- */
+
+.diary {
+  position: relative;
+  width: min(920px, 94vw);
+  aspect-ratio: 920 / 560;
+  perspective: 2400px;
+  box-shadow: 0 24px 40px rgba(94, 59, 38, 0.3);
+  border-radius: 10px;
+}
+
+.cover-under {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  z-index: 0;
+  background: linear-gradient(135deg, #7a4a2b 0%, #5e3b26 100%);
+  border-radius: 10px 0 0 10px;
+  box-shadow: inset 0 0 0 6px rgba(0, 0, 0, 0.16),
+              inset 0 0 0 7px rgba(242, 227, 198, 0.28);
+}
+
+.cover-under::after { /* 书脊处压一条阴影 */
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 14px;
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.22));
+}
+
+.pages {
+  position: absolute;
+  inset: 0;
+}
+
+/* ----- 单页与翻页动画 ----- */
+
+.page {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  transform-origin: left center;
+  transition: transform 0.75s cubic-bezier(0.45, 0.05, 0.25, 1);
+  cursor: pointer;
+}
+
+.page.no-events { pointer-events: none; }
+
+.page.flipped {
+  transform: rotateY(-180deg) translateX(calc(var(--depth, 0) * 7px));
+  cursor: default;
+}
+
+.page-front,
+.page-back {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.page-front {
+  background: linear-gradient(90deg, #f6ecd6 0%, var(--paper) 16%);
+  border: 1px solid #e2d3b4;
+  border-left: none;
+  border-radius: 3px 12px 12px 3px;
+  padding: 40px 44px 36px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.page-front::before { /* 书脊一侧的阴影 */
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 22px;
+  background: linear-gradient(90deg, rgba(90, 60, 40, 0.16), transparent);
+  pointer-events: none;
+}
+
+.page-back {
+  transform: rotateY(180deg);
+  background: var(--paper-dark);
+  border: 1px solid #e2d3b4;
+  border-right: none;
+  border-radius: 12px 3px 3px 12px;
+}
+
+.page-back::after { /* 纸背中间淡淡的折痕 */
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(90, 60, 40, 0.07);
+}
+
+/* ----- 封面页 ----- */
+
+.page.is-cover .page-front {
+  background: linear-gradient(135deg, #7a4a2b 0%, #5e3b26 100%);
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  padding: 0;
+}
+
+.cover-inner {
+  position: absolute;
+  inset: 22px;
+  border: 2px dashed rgba(242, 227, 198, 0.5);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+  padding: 12px;
+  cursor: pointer;
+}
+
+.cover-inner h2 {
+  font-family: var(--hand);
+  font-size: 28px;
+  font-weight: normal;
+  color: #fff;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.35);
+}
+
+.cover-diary {
+  font-family: var(--hand);
+  font-size: 16px;
+  color: #f2e3c6;
+  opacity: 0.85;
+}
+
+.cover-hint {
+  font-size: 13px;
+  color: #f2e3c6;
+  opacity: 0.7;
+  margin-top: 6px;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.9; }
+}
+
+/* ----- 正文页 ----- */
+
+.diary-text {
+  flex: 1;
+  font-family: var(--hand);
+  font-size: 18px;
+  line-height: 2.15;
+  color: var(--ink);
+  text-indent: 2em;
+  overflow-y: auto;
+}
+
+.page-num {
+  align-self: flex-end;
+  margin-top: 10px;
+  font-size: 13px;
+  color: #b39a76;
+  letter-spacing: 2px;
+}
+
+/* ----- 反馈页 ----- */
+
+.fb {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.fb-prompt {
+  font-family: var(--hand);
+  font-size: 17px;
+  line-height: 1.9;
+  color: var(--brown);
+  border-left: 3px solid var(--item-accent, var(--accent));
+  padding-left: 12px;
+  margin-bottom: 14px;
+}
+
+.fb-input {
+  width: 100%;
+  height: 150px;
+  resize: none;
+  border: 1px solid #e2d3b4;
+  border-radius: 6px;
+  background-color: #fffdf4;
+  background-image: repeating-linear-gradient(
+    transparent, transparent 29px,
+    rgba(180, 150, 120, 0.28) 29px, rgba(180, 150, 120, 0.28) 30px
+  );
+  background-attachment: local;
+  font-family: var(--hand);
+  font-size: 16px;
+  line-height: 30px;
+  padding: 8px 14px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.fb-input:focus {
+  border-color: #a9714b;
+  box-shadow: 0 0 0 3px rgba(169, 113, 75, 0.18);
+}
+
+.fb-hint {
+  font-size: 12px;
+  color: #a08666;
+  margin: 10px 0 0;
+}
+
+.fb-hint.warn { color: #c0392b; }
+
+.fb-submit {
+  align-self: center;
+  margin-top: 12px;
+  background: var(--brown);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 26px;
+  font-size: 15px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.fb-submit:hover { background: #6f4528; }
+
+.fb-submit:active { transform: scale(0.97); }
+
+.shake { animation: shake 0.45s; }
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+/* ----- 翻页控制 ----- */
+
+.diary-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: 14px 0 40px;
+}
+
+.diary-dots { display: flex; gap: 9px; }
+
+.diary-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #d8c4a8;
+  transition: background 0.25s, transform 0.25s;
+}
+
+.diary-dots span.on {
+  background: var(--brown);
+  transform: scale(1.3);
+}
+
+/* ============================================================
+   屏幕 3：毛毡板
+============================================================ */
+
+#screen-felt {
+  background: radial-gradient(ellipse at 50% 24%, #f4e6cf 0%, #efdfc3 60%, #e6d2ae 100%);
+}
+
+.felt-header {
+  text-align: center;
+  padding: 26px 0 18px;
+}
+
+.felt-header h1 {
+  font-family: var(--hand);
+  font-size: 28px;
+  letter-spacing: 8px;
+  color: var(--dark);
+  text-indent: 8px;
+}
+
+.felt-header p {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #8a6a4a;
+  letter-spacing: 1px;
+}
+
+.felt-stage {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding: 4px 0 0;
+}
+
+.felt-frame {
+  background: linear-gradient(135deg, #a9714b 0%, #8a5a3b 55%, #7a4a2b 100%);
+  padding: 14px;
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgba(94, 59, 38, 0.3);
+  width: min(940px, 94vw);
+}
+
+.felt-board {
+  background-color: #7c8a68;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.045) 0 2px, transparent 2px 4px),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.045) 0 2px, transparent 2px 4px),
+    radial-gradient(ellipse at center, rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.08));
+  border-radius: 8px;
+  box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.25);
+  padding: 44px 34px 40px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px 24px;
+}
+
+#felt-bear {
+  position: absolute;
+  left: max(12px, calc(50% - 490px));
+  bottom: 6px;
+  opacity: 0.9;
+}
+
+/* ----- 便签 ----- */
+
+.note {
+  position: relative;
+  background: var(--paper);
+  border-radius: 3px;
+  padding: 16px 14px 12px;
+  box-shadow: 0 7px 14px rgba(60, 50, 40, 0.28);
+  transform: rotate(var(--rot, 0deg));
+  animation: pinIn 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes pinIn {
+  from {
+    opacity: 0;
+    transform: scale(0.3) rotate(var(--rot, 0deg)) translateY(-64px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.06) rotate(var(--rot, 0deg));
+  }
+  to {
+    transform: scale(1) rotate(var(--rot, 0deg));
+  }
+}
+
+.pin {
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #f08a7e, #d9534f 62%, #8e2f28);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.35);
+}
+
+.note-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #e0d0ac;
+}
+
+.note-head .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.note-head b {
+  font-family: var(--hand);
+  font-size: 16px;
+  color: var(--dark);
+  font-weight: normal;
+}
+
+.note-head em {
+  margin-left: auto;
+  font-style: normal;
+  font-size: 11px;
+  color: #b39a76;
+}
+
+.note-body {
+  font-family: var(--hand);
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--ink);
+  max-height: 118px;
+  overflow-y: auto;
+  word-break: break-word;
+}
+
+/* ----- 分享卡片 ----- */
+
+.share-card {
+  width: min(560px, 92vw);
+  margin: 26px auto 40px;
+  background: rgba(253, 243, 221, 0.96);
+  border: 1px solid #e2d3b4;
+  border-radius: 12px;
+  padding: 24px 28px 22px;
+  text-align: center;
+  box-shadow: 0 12px 30px rgba(94, 59, 38, 0.18);
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.share-card.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.share-card h2 {
+  font-family: var(--hand);
+  font-size: 21px;
+  color: var(--dark);
+  font-weight: normal;
+  margin-bottom: 14px;
+}
+
+.share-card textarea {
+  width: 100%;
+  height: 110px;
+  resize: none;
+  border: 1px solid #e2d3b4;
+  border-radius: 6px;
+  background-color: #fffdf4;
+  background-image: repeating-linear-gradient(
+    transparent, transparent 27px,
+    rgba(180, 150, 120, 0.25) 27px, rgba(180, 150, 120, 0.25) 28px
+  );
+  background-attachment: local;
+  font-family: var(--hand);
+  font-size: 15px;
+  line-height: 28px;
+  padding: 8px 14px;
+  color: var(--ink);
+  outline: none;
+}
+
+.share-card textarea:focus {
+  border-color: #a9714b;
+  box-shadow: 0 0 0 3px rgba(169, 113, 75, 0.18);
+}
+
+.share-actions {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ============================================================
+   屏幕 4：路上的熊
+============================================================ */
+
+#screen-final {
+  position: fixed;
+  inset: 0;
+  background: #4a3a55;
+}
+
+#final-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.final-story {
+  position: absolute;
+  top: 42px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-14px);
+  width: min(520px, 90vw);
+  background: rgba(253, 243, 221, 0.96);
+  border-radius: 12px;
+  padding: 24px 30px 22px;
+  text-align: center;
+  box-shadow: 0 14px 34px rgba(20, 14, 30, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+
+.final-story.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.final-story h2 {
+  font-family: var(--hand);
+  font-size: 21px;
+  color: var(--dark);
+  font-weight: normal;
+  margin-bottom: 10px;
+}
+
+.final-story p {
+  font-family: var(--hand);
+  font-size: 16px;
+  line-height: 2;
+  color: var(--ink);
+  max-height: 30vh;
+  overflow-y: auto;
+  word-break: break-word;
+}
+
+.final-story .final-closing {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #8a6a4a;
+}
+
+.final-story .ghost-btn { margin-top: 14px; }
+
+/* ============================================================
+   按钮
+============================================================ */
+
+.ghost-btn {
+  background: transparent;
+  border: 1px solid var(--brown);
+  color: var(--dark);
+  border-radius: 999px;
+  padding: 8px 20px;
+  font-size: 14px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.ghost-btn:hover { background: rgba(138, 90, 59, 0.1); }
+
+.ghost-btn.primary {
+  background: var(--brown);
+  color: #fff;
+}
+
+.ghost-btn.primary:hover { background: #6f4528; }
+
+.ghost-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.ghost-btn:disabled:hover { background: transparent; }
+
+.ghost-btn.light {
+  border-color: rgba(253, 243, 221, 0.65);
+  color: var(--paper);
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.ghost-btn.light:hover { background: rgba(0, 0, 0, 0.32); }
+
+.primary-btn {
+  background: var(--brown);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  padding: 12px 30px;
+  font-size: 15px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.primary-btn:hover { background: #6f4528; }
+
+.primary-btn:active { transform: scale(0.97); }
+
+.link-btn {
+  background: none;
+  border: none;
+  color: #a08666;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.link-btn:hover { color: var(--brown); }
+
+/* ============================================================
+   过渡层 / 时刻层 / 轻提示
+============================================================ */
+
+#veil {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.28s;
+  z-index: 60;
+}
+
+#veil.in { opacity: 1; pointer-events: auto; }
+
+#moment {
+  position: fixed;
+  inset: 0;
+  background: rgba(74, 56, 40, 0.62);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s;
+  z-index: 70;
+}
+
+#moment.active { opacity: 1; pointer-events: auto; cursor: pointer; }
+
+.moment-card {
+  background: var(--paper);
+  border-radius: 14px;
+  padding: 38px 48px;
+  text-align: center;
+  box-shadow: 0 18px 44px rgba(30, 20, 12, 0.4);
+  animation: cardIn 0.5s ease;
+}
+
+@keyframes cardIn {
+  from { transform: scale(0.92) translateY(10px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.moment-hearts {
+  font-size: 20px;
+  letter-spacing: 8px;
+  color: var(--heart);
+  margin-bottom: 14px;
+}
+
+.moment-card h2 {
+  font-family: var(--hand);
+  font-size: 24px;
+  color: var(--dark);
+  font-weight: normal;
+}
+
+.moment-sub {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #8a6a4a;
+}
+
+#toast {
+  position: fixed;
+  left: 50%;
+  bottom: 44px;
+  transform: translateX(-50%) translateY(16px);
+  background: var(--dark);
+  color: #f7ead8;
+  font-size: 14px;
+  letter-spacing: 1px;
+  padding: 12px 24px;
+  border-radius: 999px;
+  box-shadow: 0 8px 20px rgba(40, 28, 16, 0.35);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+  z-index: 80;
+}
+
+#toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ============================================================
+   响应式
+============================================================ */
+
+@media (max-width: 760px) {
+  .home-title h1 { font-size: 24px; letter-spacing: 6px; text-indent: 6px; }
+
+  .diary { width: 96vw; aspect-ratio: auto; height: min(74vh, 540px); min-height: 400px; }
+
+  .diary-item-name { font-size: 17px; }
+
+  .page-front { padding: 24px 22px 22px; }
+
+  .diary-text { font-size: 15px; line-height: 2.05; }
+
+  .cover-inner { inset: 14px; }
+
+  .cover-inner h2 { font-size: 23px; }
+
+  .fb-input { height: 130px; font-size: 15px; }
+
+  .felt-board {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px 16px;
+    padding: 36px 20px 30px;
+  }
+
+  #felt-bear { display: none; }
+
+  .felt-header h1 { font-size: 24px; letter-spacing: 6px; text-indent: 6px; }
+
+  .final-story { top: 24px; padding: 18px 20px 16px; }
+}

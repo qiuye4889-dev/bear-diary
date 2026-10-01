@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>熊的日记</title>
+  <meta name="description" content="点击一件物品，翻开熊的一本日记。写下你的看法，把故事讲给熊听。">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐻</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+
+    <!-- 屏幕 1：熊的小屋 -->
+    <section id="screen-home" class="screen active">
+      <header class="home-title">
+        <h1>熊的小屋</h1>
+        <p>点击一件物品，翻开熊的一本日记</p>
+      </header>
+      <div class="scene-wrap">
+        <canvas id="scene-canvas" width="960" height="640"></canvas>
+        <div id="scene-tip" class="scene-tip" hidden></div>
+      </div>
+      <div class="home-progress" id="home-progress"></div>
+    </section>
+
+    <!-- 屏幕 2：日记本 -->
+    <section id="screen-diary" class="screen">
+      <header class="diary-header">
+        <button id="diary-close" class="ghost-btn" type="button">← 回到小屋</button>
+        <span class="diary-item-name" id="diary-item-name"></span>
+        <span class="diary-step" id="diary-step"></span>
+      </header>
+      <div class="diary-stage">
+        <div class="diary">
+          <div class="cover-under"></div>
+          <div class="pages" id="diary-pages"></div>
+        </div>
+      </div>
+      <div class="diary-controls">
+        <button id="prev-page" class="ghost-btn" type="button">‹ 上一页</button>
+        <span class="diary-dots" id="diary-dots"></span>
+        <button id="next-page" class="ghost-btn primary" type="button">下一页 ›</button>
+      </div>
+    </section>
+
+    <!-- 屏幕 3：毛毡板 -->
+    <section id="screen-felt" class="screen">
+      <header class="felt-header">
+        <h1>毛毡板</h1>
+        <p>你把熊的六个故事都听完了，你的话被钉在了这里</p>
+      </header>
+      <div class="felt-stage">
+        <div class="felt-frame">
+          <div class="felt-board" id="felt-board"></div>
+        </div>
+        <canvas id="felt-bear" width="72" height="78"></canvas>
+      </div>
+      <div class="share-card" id="share-card">
+        <h2>你是否有要分享的故事？</h2>
+        <textarea id="share-input" maxlength="500" placeholder="写下一个你想分享的故事，熊会认真读……"></textarea>
+        <div class="share-actions">
+          <button id="share-btn" class="primary-btn" type="button">把故事讲给熊听</button>
+          <button id="share-skip" class="link-btn" type="button">我还没有故事，直接陪熊走走吧</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 屏幕 4：路上的熊 -->
+    <section id="screen-final" class="screen">
+      <canvas id="final-canvas"></canvas>
+      <div class="final-story" id="final-story">
+        <h2 id="final-story-title"></h2>
+        <p id="final-story-text"></p>
+        <p class="final-closing" id="final-closing"></p>
+        <button id="restart-btn" class="ghost-btn light" type="button">↻ 回到小屋，再听一次</button>
+      </div>
+    </section>
+
+    <!-- 过渡层：暖色淡入淡出 -->
+    <div id="veil"></div>
+
+    <!-- 时刻层：六个故事听完时的提示 -->
+    <div id="moment">
+      <div class="moment-card">
+        <p class="moment-hearts">♥ ♥ ♥ ♥ ♥ ♥</p>
+        <h2>你把熊的六个故事都听完了</h2>
+        <p class="moment-sub">毛毡板上，等你写下的那些话</p>
+      </div>
+    </div>
+
+    <!-- 轻提示 -->
+    <div id="toast" role="status"></div>
+  </div>
+
+  <script src="pixel.js"></script>
+  <script src="stories.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
